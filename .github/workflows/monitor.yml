@@ -2,14 +2,22 @@ name: Auto Status Monitor
 
 on:
   schedule:
-    - cron: '*/5 * * * *' # รันทุกๆ 5 นาที
-  workflow_dispatch: # ให้กดรันมือเองได้จากหน้าเว็บ GitHub
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: write
+  pages: write      # เพิ่มสิทธิ์สำหรับอัปเดต GitHub Pages
+  id-token: write   # เพิ่มสิทธิ์ยืนยันตัวตนในการ Deploy
 
 jobs:
-  update-status:
+  update-and-deploy:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write # อนุญาตให้เขียนไฟล์กลับเข้า Repo ได้
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -20,11 +28,26 @@ jobs:
           node-version: 20
 
       - name: Run Monitor Script
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: node monitor.js
 
-      - name: Commit and push changes if status changed
+      - name: Commit and push status.json
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add data/status.json
           git diff --quiet && git diff --staged --quiet || (git commit -m "chore: update status.json [skip ci]" && git push)
+
+      # --- ส่วนที่เพิ่มเข้ามาเพื่อเอาไฟล์ขึ้นหน้าเว็บ GitHub Pages ทันที ---
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.' # อัปโหลดทั้งโฟลเดอร์โปรเจกต์ (รวม index.html และ data/status.json)
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
