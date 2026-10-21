@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Status Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 p-6 flex flex-col items-center justify-center min-h-screen">
+    
+    <div class="w-full max-w-2xl bg-slate-800 rounded-xl p-6 shadow-xl border border-slate-700">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-xl font-bold">Service Status Monitor</h1>
+            <span id="last-update" class="text-xs text-slate-400">กำลังโหลด...</span>
+        </div>
+
+        <div id="status-list" class="space-y-3">
+            <!-- รายการระบบจะถูกพ่นเข้ามาตรงนี้ด้วย JavaScript -->
+            <div class="text-center text-slate-400 py-4">กำลังดึงข้อมูลสถานะ...</div>
+        </div>
+    </div>
+
+    <script>
+        async function fetchStatus() {
+            try {
+                // เติม timestamp เพื่อกัน Browser Cache
+                const res = await fetch('./data/status.json?t=' + new Date().getTime());
+                if (!res.ok) throw new Error('ไม่สามารถโหลดข้อมูลได้');
+                
+                const data = await res.json();
+                
+                document.getElementById('last-update').innerText = 'อัปเดตล่าสุด: ' + data.timestamp;
+                
+                const container = document.getElementById('status-list');
+                container.innerHTML = '';
+
+                if (!Array.isArray(data.results) || data.results.length === 0) {
+                    container.innerHTML = '<div class="text-center text-slate-400 py-4">ยังไม่มีข้อมูลสถานะ กรุณารอหรือเรียกใช้ monitor</div>';
+                    return;
+                }
+
+                data.results.forEach(item => {
+                    let badgeColor = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
+                    let dotColor = 'bg-emerald-500 animate-pulse';
+                    let statusText = 'ปกติ (UP)';
+
+                    if (item.status === 'DOWN') {
+                        badgeColor = 'bg-rose-500/10 text-rose-400 border-rose-500/20';
+                        dotColor = 'bg-rose-500';
+                        statusText = 'ล่ม (DOWN)';
+                    } else if (item.status === 'DEGRADED') {
+                        badgeColor = 'bg-amber-500/10 text-amber-400 border-amber-500/20';
+                        dotColor = 'bg-amber-500';
+                        statusText = 'ผิดปกติ (DEGRADED)';
+                    }
+
+                    const html = `
+                        <div class="flex items-center justify-between p-4 rounded-lg bg-slate-900/50 border border-slate-700/60">
+                            <div>
+                                <h2 class="font-medium text-sm text-slate-200">${item.name}</h2>
+                                <p class="text-xs text-slate-400 mt-0.5">${item.reason} (${item.latency} ms)</p>
+                            </div>
+                            <div class="flex items-center gap-2 px-3 py-1 rounded-full border text-xs font-medium ${badgeColor}">
+                                <span class="w-2 h-2 rounded-full ${dotColor}"></span>
+                                ${statusText}
+                            </div>
+                        </div>
+                    `;
+                    container.innerHTML += html;
+                });
+            } catch (err) {
+                document.getElementById('status-list').innerHTML = `<div class="text-center text-rose-400 py-4">เกิดข้อผิดพลาดในการโหลดข้อมูล</div>`;
+            }
+        }
+
+        fetchStatus();
+        // รีเฟรชหน้าเว็บทุกๆ 2 นาที
+        setInterval(fetchStatus, 120000);
+    </script>
+</body>
+</html>
