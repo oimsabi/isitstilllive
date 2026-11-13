@@ -1,23 +1,23 @@
 {
-  "timestamp": "13/11/2569 23:43:42",
+  "timestamp": "14/11/2569 05:12:28",
   "results": [
     {
       "name": "Steam Storefront",
       "status": "UP",
-      "latency": 232,
+      "latency": 274,
       "reason": "HTTP 200"
     },
     {
       "name": "Steam CM List (Connection Service)",
       "status": "UP",
-      "latency": 142,
-      "reason": "พบโหนดเซิร์ฟเวอร์ 81 จุด"
+      "latency": 389,
+      "reason": "พบโหนดเซิร์ฟเวอร์ 46 จุด"
     },
     {
       "name": "GitHub Status API",
-      "status": "DEGRADED",
-      "latency": 56,
-      "reason": "พบปัญหา: Pull Requests"
+      "status": "UP",
+      "latency": 203,
+      "reason": "ทุกระบบย่อยปกติ"
     }
   ]
 }
