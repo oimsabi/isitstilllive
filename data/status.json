@@ -1,23 +1,23 @@
 {
-  "timestamp": "18/11/2569 08:43:26",
+  "timestamp": "18/11/2569 16:10:22",
   "results": [
     {
       "name": "Steam Storefront",
       "status": "UP",
-      "latency": 282,
+      "latency": 240,
       "reason": "HTTP 200"
     },
     {
       "name": "Steam CM List (Connection Service)",
       "status": "UP",
-      "latency": 224,
-      "reason": "พบโหนดเซิร์ฟเวอร์ 44 จุด"
+      "latency": 209,
+      "reason": "พบโหนดเซิร์ฟเวอร์ 71 จุด"
     },
     {
       "name": "GitHub Status API",
-      "status": "UP",
-      "latency": 77,
-      "reason": "ทุกระบบย่อยปกติ"
+      "status": "DEGRADED",
+      "latency": 116,
+      "reason": "พบปัญหา: Copilot AI Model Providers"
     }
   ]
 }
